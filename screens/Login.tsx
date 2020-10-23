@@ -1,5 +1,5 @@
 import React  from 'react';
-import { StyleSheet, Text, View, AsyncStorage } from 'react-native';
+import { StyleSheet, Text, View, AsyncStorage, Platform, BackHandler } from 'react-native';
 import { TextInput, Button, Appbar } from 'react-native-paper';
 
 import * as firebase from 'firebase';
@@ -65,7 +65,16 @@ export default class Login extends React.Component<MyProps, MyState> {
     );
   }
 
+  componentWillUnmount() {
+    BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+  }
+
   async componentDidMount(){
+
+    if (Platform.OS == "android") {
+      BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);                           
+    }
+
     var that = this;
     await firebase.auth().onAuthStateChanged(function(user){
       if(user){
@@ -77,6 +86,11 @@ export default class Login extends React.Component<MyProps, MyState> {
         that.setState({loading: false});
       }
     });
+  }
+
+  handleBackButton = () => {
+    BackHandler.exitApp();
+    return true;
   }
 
   async login(){

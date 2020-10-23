@@ -1,5 +1,5 @@
 import React  from 'react';
-import { StyleSheet, View } from 'react-native';
+import { BackHandler, Platform, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 import * as firebase from 'firebase';
@@ -14,6 +14,7 @@ type MyProps = {
 type MyState = any;
 
 export default class Cadastro extends React.Component<MyProps, MyState> {
+  private _unsubscribeExit: any;
   constructor(props: Readonly<MyProps>) {
     super(props)
 
@@ -46,7 +47,19 @@ export default class Cadastro extends React.Component<MyProps, MyState> {
     )
   };
 
+
   async componentDidMount(){
+    this._unsubscribeExit = this.props.navigation.addListener('focus', () => {
+      if (Platform.OS == "android") {
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
+      }
+    })
+
+    this.props.navigation.addListener('blur', () => {
+      if (Platform.OS == "android") {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+      }
+    });
     var that = this;
     await firebase.auth().onAuthStateChanged(function(user){
       if(user){
@@ -62,7 +75,13 @@ export default class Cadastro extends React.Component<MyProps, MyState> {
     });
   }
 
+  handleBackButton(){
+    BackHandler.exitApp();
+    return true;
+  }
+
 }
+
 
 const styles = StyleSheet.create({
   container: {
