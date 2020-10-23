@@ -1,0 +1,208 @@
+import React  from 'react';
+import { Alert, StyleSheet, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Text } from 'react-native-paper';
+import Button from '../../components/Button';
+
+import * as firebase from 'firebase';
+import 'firebase/firestore';
+
+import Header from '../../components/Header';
+import CustomImage from '../../components/Image';
+import Colors from '../../constants/Colors';
+import Loading from '../../components/Loading';
+
+type MyProps = {
+  navigation: any,
+  route: any
+};
+type MyState = any;
+
+export default class DetalhesSolicitacao extends React.Component<MyProps, MyState> {
+  jobId: any;
+  thumbInterval: any;
+  private _unsubscribe: any;
+  constructor(props: Readonly<MyProps>) {
+    super(props)
+    this.state = {
+      job: '',
+      loading: false,
+      loadingText: '',
+      thumb: '',
+      thumbNumber: 0
+    };
+
+    this.jobId = this.props.route.params.id;
+
+  };
+  
+  componentDidMount(){
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      this.setState({loading: true});
+      firebase.firestore().collection('jobs').doc(this.props.route.params.id).get()
+        .then((doc) => {
+          if (doc.exists) {
+            this.setState({job: doc.data(), loading: false}, () => {
+              clearInterval(this.thumbInterval);
+              if(this.state.job.images.length > 0){
+                this.setState({thumb: this.state.job.images[this.state.thumbNumber].url || undefined})
+                var that = this;
+                this.thumbInterval = setInterval(() => {
+                  var newVal = that.state.thumbNumber + 1
+                  if(that.state.job.images[newVal] == undefined){
+                    that.setState({thumbNumber: 0, thumb: this.state.job.images[0].url});
+                  }
+                  else{
+                    that.setState({thumbNumber: newVal, thumb: this.state.job.images[newVal].url});
+                  }
+                }, 3000)
+              }
+            })
+        } else {
+            this.setState({loading: false}, () => {
+              Alert.alert(
+                'Falha no carregamento',
+                'Falha ao Carregar a Solicitação',
+                [
+                  {
+                    text: 'Ok',
+                    onPress: () => {
+                      this.props.navigation.goBack();
+                    }
+                  }
+                ]
+              )
+            })
+        }
+        })
+    });
+  }
+
+  componentWillUnmount(){
+    this._unsubscribe();
+  }
+
+  render() {
+    return (
+      <View style={styles.container}>
+        <Header navigation={this.props.navigation} label="Detalhes da Solicitação" back={true}/>
+        <Loading visible={this.state.loading} label={this.state.loadingText}/>
+        {
+          this.state.job != '' &&
+          <ScrollView style={styles.scrollview} showsVerticalScrollIndicator={false}>
+            {this.state.job.images[0] != undefined && 
+              <CustomImage uri={this.state.thumb} style={styles.thumb}/>
+            }
+            
+            <View style={styles.item}>
+              <Text>Profissional:</Text>
+              <Text style={styles.title}>{this.state.job.profession}</Text>
+            </View>
+            <View style={styles.item}>
+              <Text>Valor:</Text>
+              <Text style={styles.description}>{this.state.job.value ? 'R$ ' + this.state.job.value : 'A Combinar'}</Text>
+            </View>
+            <View style={styles.item}>
+              <Text>Descrição:</Text>
+              <Text style={styles.description}>{this.state.job.description}</Text>
+            </View>
+            <View style={styles.item}>
+              <Text>Endereço:</Text>
+              <Text style={styles.description} onPress={() => {alert('Teste')}}>{this.state.job.logradouro}, {this.state.job.numero} - {this.state.job.bairro} - {this.state.job.cidade} - {this.state.job.uf}</Text>
+              <Text style={styles.addressObs}>*Esta informação só é visível para você</Text>
+            </View>
+            <Button label="Editar" onPress={this.handleEdit.bind(this)} style={styles.editButton}/>
+            <Button label="Excluir" onPress={this.handleDelete.bind(this)} style={styles.deleteButton}/>
+          </ScrollView>
+        }
+        
+        
+      </View>
+    )
+  };
+
+  handleDelete = () => {
+    Alert.alert(
+      'Excluir Solicitação',
+      'Deseja realmente excluir esta solicitação?',
+      [
+        {
+          text: 'Sim',
+          onPress: async () => {
+            this.setState({loading: true, loadingText: 'Excluindo Solicitação'})
+            clearInterval(this.thumbInterval);
+            var imgPromise = this.state.job.images.map( async (item: any, index: any) => {
+              let ref = item.url.replace('https://firebasestorage.googleapis.com/v0/b/bicos-6a1f2.appspot.com/o/', "").split('?')[0];
+              await firebase.storage().ref().child(decodeURIComponent(ref)).delete()
+            })
+
+            Promise.all(imgPromise)
+              .then(() => {
+                firebase.firestore().collection('jobs').doc(this.jobId).delete()
+                  .then(() => {
+                    this.setState({loading: false, loadingText: ''})
+                    this.props.navigation.goBack();
+                  })
+              })
+          }
+        },
+        {
+          text: 'Não'
+        }
+      ]
+    )
+  }
+
+  handleEdit = () => {
+    this.setState({thumbNumber: 0});
+    this.props.navigation.navigate('EditarSolicitacao', {id: this.jobId});
+  }
+
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.lightGray,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingTop: 50,
+    height: 'auto'
+  },
+  scrollview: {
+    paddingBottom: 20
+  },
+  thumb: {
+    width: '100%',
+    height: undefined,
+    aspectRatio: 4/3,
+    borderRadius: 5,
+    elevation: 5,
+    marginTop: 20
+  },
+  item: {
+    borderBottomWidth: 1,
+    marginTop: 10,
+    paddingBottom: 10
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: "bold"
+  },
+  description: {
+    fontSize: 18,
+    marginTop: 5
+  },
+  addressObs: {
+    fontSize: 12
+  },
+  editButton: {
+    backgroundColor: Colors.lightYellow,
+    marginTop: 20
+  },
+  deleteButton: {
+    backgroundColor: Colors.danger,
+    marginTop: 20,
+    marginBottom: 20
+  }
+})
