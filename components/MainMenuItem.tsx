@@ -33,7 +33,7 @@ export default class MainMenuItem extends React.Component<MyProps, MyState> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.yellow,
+    backgroundColor: Colors.lightYellow,
     justifyContent: 'center',
     marginTop: 10,
     marginBottom: 10,
