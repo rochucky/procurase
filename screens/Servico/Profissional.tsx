@@ -83,6 +83,7 @@ export default class Profissional extends React.Component<MyProps, MyState> {
         <Card 
           key={arr.item.id}
           navigation={this.props.navigation} 
+          item={arr.item}
           thumb={arr.item.images[0]} 
           title={arr.item.profession} 
           description={arr.item.description}

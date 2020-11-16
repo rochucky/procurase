@@ -1,15 +1,21 @@
 import React  from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { ScrollView } from 'react-native-gesture-handler';
+import { Text, TextInput } from 'react-native-paper';
+
+import * as firebase from 'firebase';
+import 'firebase/firestore';
 
 import Header from '../../components/Header';
+import Loading from '../../components/Loading';
+import Colors from '../../constants/Colors';
 
 type MyProps = {
   navigation: any
 };
 type MyState = {};
 
-export default class Cadastro extends React.Component<MyProps, MyState> {
+export default class FazerProposta extends React.Component<MyProps, MyState> {
   constructor(props: Readonly<MyProps>) {
     super(props)
 
@@ -20,7 +26,8 @@ export default class Cadastro extends React.Component<MyProps, MyState> {
   render() {
     return (
       <View style={styles.container}>
-        <Header navigation={this.props.navigation} label="Nova Solicita??o" back={true}/>
+        <Header navigation={this.props.navigation} label="Fazer Proposta" back={true}/>
+        <Loading visible={this.state.loading || false} label={this.state.loadingText || ''}/>
         
       </View>
     )
@@ -31,7 +38,7 @@ export default class Cadastro extends React.Component<MyProps, MyState> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#dba92a',
+    backgroundColor: Colors.lightGray,
     paddingLeft: 20,
     paddingRight: 20,
     paddingTop: 50,

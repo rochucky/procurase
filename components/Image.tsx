@@ -59,7 +59,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     height: 40,
     width: '100%',
-    elevation: 5
+    elevation: 5,
+    overflow: "hidden"
   },
   imageContainer: {
     marginLeft: 10,

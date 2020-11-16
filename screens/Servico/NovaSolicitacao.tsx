@@ -41,7 +41,7 @@ export default class NovaSolicitacao extends React.Component<MyProps, MyState> {
     this.state = {
       profession: '',
       description: '',
-      value: '',
+      value: '0.00',
       professions: [],
       images: [],
       cep: '',
@@ -133,7 +133,7 @@ export default class NovaSolicitacao extends React.Component<MyProps, MyState> {
             label="Valor" 
             mode="outlined"  
             value={this.state.value} 
-            onChangeText={(text) => {this.setState({value: text})}} 
+            onChangeText={this.handleCurrency.bind(this)} 
             placeholder=""
             style={styles.textinput}
             ref={(input) => {this.inputValue = input}}
@@ -304,6 +304,18 @@ export default class NovaSolicitacao extends React.Component<MyProps, MyState> {
 
       })
     }
+  }
+  
+  handleCurrency(val: any){
+    var value;
+    if(val == '0' || val == ''){
+      value = '0.00';
+    }
+    else{
+      value = parseInt(val.replace('.',''));
+      value = (value/100).toFixed(2);
+    }
+    this.setState({value: value.toString()});
   }
 
   handleImageDelete = (index: number) => {

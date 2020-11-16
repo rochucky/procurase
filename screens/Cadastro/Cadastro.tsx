@@ -176,7 +176,7 @@ export default class Cadastro extends React.Component<MyProps, MyState> {
         firebase.storage().ref().child(filename).put(this.blob)
           .then( async (snap) => {
           this.url = await snap.ref.getDownloadURL()
-          response.user.updateProfile({
+          response.user?.updateProfile({
             displayName: this.state.name + ' ' + this.state.lastname,
             photoURL: this.url
           })

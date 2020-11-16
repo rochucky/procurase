@@ -30,6 +30,10 @@ import NovaSolicitacao from './screens/Servico/NovaSolicitacao';
 import DetalhesSolicitacao from './screens/Servico/DetalhesSolicitacao';
 import Colors from './constants/Colors';
 import EditarSolicitacao from './screens/Servico/EditarSolicitacao';
+import FazerProposta from './screens/Servico/FazerProposta';
+import Propostas from './screens/Servico/Propostas';
+import DetalhesProposta from './screens/Servico/DetalhesProposta';
+
 
 const theme = {
   ...DefaultTheme,
@@ -71,6 +75,15 @@ export default function App() {
             headerShown: false
           }}/>
           <Stack.Screen name="DetalhesSolicitacao" component={DetalhesSolicitacao} options={{ 
+            headerShown: false
+          }}/>
+          <Stack.Screen name="FazerProposta" component={FazerProposta} options={{ 
+            headerShown: false
+          }}/>
+          <Stack.Screen name="Propostas" component={Propostas} options={{ 
+            headerShown: false
+          }}/>
+          <Stack.Screen name="DetalhesProposta" component={DetalhesProposta} options={{ 
             headerShown: false
           }}/>
         </Stack.Navigator>

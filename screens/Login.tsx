@@ -78,8 +78,26 @@ export default class Login extends React.Component<MyProps, MyState> {
     var that = this;
     await firebase.auth().onAuthStateChanged(function(user){
       if(user){
-        that.setState({loading: false}, () => {
-          that.props.navigation.navigate('Main')
+        firebase.firestore().collection('users').doc(user.uid).get()
+        .then((doc) => {
+          if(doc.exists){
+            that.setState({loading: false}, () => {
+              that.props.navigation.navigate('Main')
+            })
+          }
+          else{
+            firebase.firestore().collection('users').doc(user.uid)
+              .set({
+                'name': user.displayName,
+                'image': user.photoURL,
+                'email': user.email
+              })
+              .then(() => {
+                that.setState({loading: false}, () => {
+                  that.props.navigation.navigate('Main')
+                })  
+              })
+          }
         })
       }
       else{
