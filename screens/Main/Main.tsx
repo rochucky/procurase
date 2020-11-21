@@ -27,7 +27,7 @@ export default class Cadastro extends React.Component<MyProps, MyState> {
     return (
       <View style={styles.container}>
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Olá, {this.state.name.split(' ')[0]}</Text>
+          <Text style={styles.greeting}>Bem Vindo!</Text>
           <TouchableOpacity onPress={() => {
             this.props.navigation.navigate('Config');
           }}>

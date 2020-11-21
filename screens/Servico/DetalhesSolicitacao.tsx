@@ -110,10 +110,13 @@ export default class DetalhesSolicitacao extends React.Component<MyProps, MyStat
             {this.state.job.images[0] != undefined && 
               <CustomImage uri={this.state.thumb} style={styles.thumb}/>
             }
-            
-            <TouchableOpacity style={styles.offers} onPressOut={this.handleOffersButton.bind(this)}>
-              <Text style={styles.offersText}>Ver Propostas: {this.state.job.offers || 0}</Text>
-            </TouchableOpacity>
+            {this.state.job.acceptedOffer ? (
+              <View></View>
+            ): (
+              <TouchableOpacity style={styles.offers} onPressOut={this.handleOffersButton.bind(this)}>
+                <Text style={styles.offersText}>Ver Propostas: {this.state.job.offers || 0}</Text>
+              </TouchableOpacity>
+            )}
             <View style={styles.item}>
               <Text>Profissional:</Text>
               <Text style={styles.title}>{this.state.job.profession}</Text>

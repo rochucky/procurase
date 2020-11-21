@@ -1,7 +1,8 @@
 import React  from 'react';
-import { StyleSheet, View } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { Alert, StyleSheet, View } from 'react-native';
+import { ScrollView, TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { Text, TextInput } from 'react-native-paper';
+import { FontAwesome } from '@expo/vector-icons'; 
 
 import * as firebase from 'firebase';
 import 'firebase/firestore';
@@ -10,13 +11,15 @@ import Header from '../../components/Header';
 import Loading from '../../components/Loading';
 import Colors from '../../constants/Colors';
 import CustomImage from '../../components/Image';
+import Stars from '../../components/Stars';
+import Button from '../../components/Button';
 
 type MyProps = any;
 type MyState = any;
 
 export default class DetalhesProposta extends React.Component<MyProps, MyState> {
   
-  jobId: any;
+  job: any;
   offer: any;
   
   constructor(props: Readonly<MyProps>) {
@@ -27,9 +30,8 @@ export default class DetalhesProposta extends React.Component<MyProps, MyState> 
        loading: false
     };
 
-    this.jobId = this.props.route.params.jobId;
+    this.job = firebase.firestore().collection('jobs').doc(this.props.route.params.jobId);
     this.offer = this.props.route.params.offer;
-
 
   };
 
@@ -43,9 +45,9 @@ export default class DetalhesProposta extends React.Component<MyProps, MyState> 
 
     return (
       <View style={styles.container}>
-        <Header navigation={this.props.navigation} label="Propostas" back={true}/>
+        <Header navigation={this.props.navigation} label="Detalhes da Proposta" back={true}/>
         <Loading visible={this.state.loading || false} label={this.state.loadingText || ''}/>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>Solicitação</Text>
             <View style={styles.job}>
@@ -89,12 +91,58 @@ export default class DetalhesProposta extends React.Component<MyProps, MyState> 
                 <Text style={styles.jobValue}>{this.offer.offerUserData.name}</Text>
               </View>
             </View>
+            <View style={styles.line}>
+              <View style={styles.job}>
+                <Text style={styles.label}>Avaliações:</Text>
+              </View>
+              <View style={styles.jobEvaluation}>
+                <Stars value={this.offer.offerUserData.evaluation || 0} />
+                <TouchableOpacity onPress={this.evaluations.bind(this)}>
+                  <Text style={styles.jobValue}> - {this.offer.offerUserData.evaluations || 0} Avaliações   </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
+          <Button label="Aceitar Proposta" onPress={this.accept.bind(this)} style={styles.acceptButton}/>
         </ScrollView>
       </View>
 
     )
   };
+
+  evaluations = () => {
+    alert("Em desenvolvimento");
+  }
+
+  accept = () => {
+    Alert.alert(
+      'Aceitar Proposta',
+      'Deseja realmente aceitar esta proposta?',
+      [
+        {
+          text: 'Sim',
+          onPress: () => {
+            // this.setState({loading: true, loadingText: 'Processando'})
+            this.job.update({
+              acceptedOffer: this.offer,
+              status: "Em Andamento"
+            })
+            .then(() => {
+              alert("Proposta aceita.");
+              this.props.navigation.goBack();
+            })
+            .catch((err: any) => {
+              alert('Falha ao atualizar o documento');
+              console.log(err);
+            })
+          }
+        },
+        {
+          text: "Não"
+        }
+      ]
+    )
+  }
 
 }
 
@@ -127,6 +175,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 5
   },
+  jobEvaluation: {
+    flex: 0,
+    flexDirection: "row"
+  },
+  evaluationContainer: {
+    position: "relative",
+    flex: 1
+  },
   description: {
     fontSize: 20
   },
@@ -144,5 +200,10 @@ const styles = StyleSheet.create({
     height: 100,
     width: 100,
     borderRadius: 50
+  },
+  acceptButton: {
+    backgroundColor: Colors.green,
+    marginBottom: 20,
+    marginTop: 20
   }
 })

@@ -16,6 +16,7 @@ type MyState = any;
 export default class Propostas extends React.Component<MyProps, MyState> {
   
   jobId: any;
+  private _unsubscribe: any;
   
   constructor(props: Readonly<MyProps>) {
     super(props)
@@ -27,10 +28,20 @@ export default class Propostas extends React.Component<MyProps, MyState> {
 
     this.jobId = this.props.route.params.jobId;
 
-
   };
 
   componentDidMount = () => {
+
+    this._unsubscribe = this.props.navigation.addListener('focus', () => {
+      firebase.firestore().collection('jobs').doc(this.jobId).get()
+      .then((doc: any) => {
+        if(doc.exists){
+          if(doc.data().acceptedOffer){
+            this.props.navigation.goBack();
+          }
+        }
+      })
+    })
 
     var items: any = [];
     var response = firebase.firestore().collection('offers').where('jobId', '==', this.jobId).get()
@@ -50,6 +61,10 @@ export default class Propostas extends React.Component<MyProps, MyState> {
             })
         })
       })
+  }
+
+  componentWillUnmount = () => {
+    this._unsubscribe();
   }
 
   render() {

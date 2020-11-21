@@ -22,24 +22,25 @@ export default class Profissional extends React.Component<MyProps, MyState> {
     super(props)
 
     this.state = {
-       jobs: []
+       jobs: [],
+       filter: 'Aberto'
     };
 
   };
 
   componentDidMount(){
-    this._unsubscribe = this.props.navigation.addListener('focus', this.handleRefresh.bind(this))
+    this._unsubscribe = this.props.navigation.addListener('focus', this.handleRefresh.bind(this, this.state.filter))
   }
 
   componentWillUnmount(){
     this._unsubscribe();
   }
 
-  handleRefresh(){
+  handleRefresh(status: string){
     this.setState({loading: true});
     var user = firebase.auth().currentUser;
     var that = this;
-    firebase.firestore().collection('jobs').where('owner','==', user?.uid).orderBy('date','desc').get()
+    firebase.firestore().collection('jobs').where('owner','==', user?.uid).where('status', '==', status).orderBy('date','desc').get()
     .then(function(querySnapshot) {
       var items: any = [];
       querySnapshot.forEach(function(doc) {
@@ -51,19 +52,27 @@ export default class Profissional extends React.Component<MyProps, MyState> {
     })
   }
 
+  
+
   render() {
     return (
       <View style={styles.container}>
         <Header back={true} label="Solicitar Profissional" navigation={this.props.navigation}/>
+        <Text style={styles.legend}>Filtrar</Text>
+        <View style={styles.filters}>
+          <Button style={this.state.filter == 'Aberto' ? styles.filterButtonSelected : styles.filterButton} label="Abertos" onPress={this.filterReload.bind(this, 'Aberto')}/>
+          <Button style={this.state.filter == 'Em Andamento' ? styles.filterButtonSelected : styles.filterButton} label="Em Andamento" onPress={this.filterReload.bind(this, 'Em Andamento')}/>
+        </View>
         <Text style={styles.legend}>Minhas solicitações</Text>
         <FlatList 
           data={this.state.jobs}
           renderItem={this.renderItem}
           keyExtractor={(item: any) => item.id}
+          extraData={this.state.loading}
           refreshControl={
             <RefreshControl 
               refreshing={this.state.loading}
-              onRefresh={this.handleRefresh.bind(this)}
+              onRefresh={this.handleRefresh.bind(this, this.state.filter)}
             />
           }
         />
@@ -75,7 +84,24 @@ export default class Profissional extends React.Component<MyProps, MyState> {
 
       </View>
     )
+    
   };
+  filterReload = (status: string) => {
+    this.setState({filter: status, loading: true}, () => {
+      var user = firebase.auth().currentUser;
+      var that = this;
+      firebase.firestore().collection('jobs').where('owner','==', user?.uid).where('status', '==', this.state.filter).orderBy('date','desc').get()
+      .then(function(querySnapshot) {
+        var items: any = [];
+        querySnapshot.forEach(function(doc) {
+          // doc.data() is never undefined for query doc snapshots
+          console.log(doc.id, " => ", doc.data());
+          items.push({id: doc.id ,...doc.data()});
+        });
+        that.setState({jobs: items, loading: false});
+      })
+    })
+  }
 
   renderItem = (arr: any) => {
     return(
@@ -104,6 +130,24 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingTop: 50,
     height: '100%'
+  },
+  filters: {
+    flex: 0,
+    flexDirection: "row",
+    marginTop: 10
+  },
+  filterButton:{
+    flex: 1,
+    marginLeft: 5,
+    marginRight: 5,
+    borderRadius: 20
+  },
+  filterButtonSelected:{
+    flex: 1,
+    marginLeft: 5,
+    marginRight: 5,
+    borderRadius: 20,
+    backgroundColor: Colors.yellow
   },
   btnContainer: {
     backgroundColor: Colors.lightGray,

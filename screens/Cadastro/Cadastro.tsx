@@ -189,7 +189,6 @@ export default class Cadastro extends React.Component<MyProps, MyState> {
                 {
                   text: 'ok',
                   onPress: () => {
-                    this.props.navigation.navigate('Login');
                   }
                 }
               ]
