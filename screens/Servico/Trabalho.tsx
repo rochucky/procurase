@@ -88,7 +88,7 @@ export default class Trabalho extends React.Component<MyProps, MyState> {
   };
 
   renderItem = (arr: any) => {
-    if(arr.item.owner != this.user.uid){
+    if(arr.item.owner != this.user?.uid){
       
           return(
             <TouchableWithoutFeedback onPress={() => {this.props.navigation.navigate('DetalhesSolicitacao', {id: arr.item.id})}}>
@@ -101,6 +101,7 @@ export default class Trabalho extends React.Component<MyProps, MyState> {
                 description={arr.item.description}
                 value={arr.item.value || undefined}
                 myOffer={arr.item.myOffer}
+                uid={this.user?.uid}
               />
       
             </TouchableWithoutFeedback>

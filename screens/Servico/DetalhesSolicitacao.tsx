@@ -11,6 +11,7 @@ import Header from '../../components/Header';
 import CustomImage from '../../components/Image';
 import Colors from '../../constants/Colors';
 import Loading from '../../components/Loading';
+import { red100 } from 'react-native-paper/lib/typescript/src/styles/colors';
 
 type MyProps = {
   navigation: any,
@@ -113,9 +114,10 @@ export default class DetalhesSolicitacao extends React.Component<MyProps, MyStat
             {this.state.job.acceptedOffer ? (
               <View></View>
             ): (
-              <TouchableOpacity style={styles.offers} onPressOut={this.handleOffersButton.bind(this)}>
-                <Text style={styles.offersText}>Ver Propostas: {this.state.job.offers || 0}</Text>
-              </TouchableOpacity>
+              this.state.job.owner == this.user?.uid &&
+                <TouchableOpacity style={styles.offers} onPressOut={this.handleOffersButton.bind(this)}>
+                  <Text style={styles.offersText}>Ver Propostas: {this.state.job.offers || 0}</Text>
+                </TouchableOpacity>
             )}
             <View style={styles.item}>
               <Text>Profissional:</Text>
@@ -129,8 +131,28 @@ export default class DetalhesSolicitacao extends React.Component<MyProps, MyStat
               <Text>Descrição:</Text>
               <Text style={styles.description}>{this.state.job.description}</Text>
             </View>
-            {this.user?.uid == this.state.job.owner ?
+            {this.user?.uid == this.state.job.owner ? // Usuario é o owner do job??
               (
+                this.state.job.acceptedOffer ? ( // Dados da oferta aceita
+                  <View>
+                    <View style={styles.item}>
+                      <Text>Endereço:</Text>
+                      <Text style={styles.description} onPress={() => {alert('Teste')}}>{this.state.job.logradouro}, {this.state.job.numero} - {this.state.job.bairro} - {this.state.job.cidade} - {this.state.job.uf}</Text>
+                    </View>
+                    <View style={styles.header}>
+                      <Text style={styles.headerText}>Proposta Aceita:</Text>
+                    </View>
+                    <View style={[styles.item, {flex: 1, flexDirection: "row", justifyContent: "space-between"}]}>
+                      <View style={{flex: 1}}>
+                        <Text>Nome:</Text>
+                        <Text style={styles.description}>{this.state.job.acceptedOffer.offerUserData.name}</Text>
+                      </View>
+                      <View style={styles.offerUserImage}>
+                        <CustomImage style={styles.offerUserImage} uri={this.state.job.acceptedOffer.offerUserData.image}/>
+                      </View>
+                    </View>
+                  </View>
+                ):(
                 <View>
                   <View style={styles.item}>
                     <Text>Endereço:</Text>
@@ -140,6 +162,8 @@ export default class DetalhesSolicitacao extends React.Component<MyProps, MyStat
                   <Button label="Editar" onPress={this.handleEdit.bind(this)} style={styles.editButton}/>
                   <Button label="Excluir" onPress={this.handleDelete.bind(this)} style={styles.deleteButton}/>
                 </View>
+
+                )
 
               ):(
                 <View>
@@ -272,6 +296,23 @@ const styles = StyleSheet.create({
   },
   addressObs: {
     fontSize: 12
+  },
+  header: {
+    marginTop: 15,
+    borderBottomWidth: 2
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: "700"
+  },
+  offerUserImage: {
+    flex: 0,
+    width: 60,
+    height: 60,
+    borderRadius: 50,
+    overflow: "hidden",
+    margin: 0,
+    padding: 0
   },
   editButton: {
     backgroundColor: Colors.lightYellow,

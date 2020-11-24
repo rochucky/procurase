@@ -2,6 +2,7 @@ import React  from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { Badge, Text } from 'react-native-paper';
+import { Item } from 'react-native-paper/lib/typescript/src/components/Drawer/Drawer';
 import { green100 } from 'react-native-paper/lib/typescript/src/styles/colors';
 import Colors from '../constants/Colors';
 
@@ -14,7 +15,8 @@ type MyProps = {
   description: string,
   value: number,
   myOffer?: boolean,
-  item: any
+  item: any,
+  uid: any
 };
 type MyState = {};
 
@@ -29,7 +31,9 @@ export default class Card extends React.Component<MyProps, MyState> {
   render() {
     return (
       <TouchableWithoutFeedback style={styles.container}>
-        <Badge size={35} style={styles.badge}>Propostas: {this.props.item.offers || 0}</Badge>
+        {this.props.item.owner == this.props.uid &&
+          <Badge size={35} style={styles.badge}>Propostas: {this.props.item.offers || 0}</Badge>
+        }
         {this.props.thumb != undefined && 
         (
           <Image source={{uri: this.props.thumb.url}} style={styles.thumb} />

@@ -7,7 +7,7 @@ import * as firebase from 'firebase';
 import 'firebase/firestore';
 import Colors from '../../constants/Colors';
 import Button from '../../components/Button';
-import { FlatList, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { FlatList, ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Card from '../../components/Card';
 
 type MyProps = any;
@@ -23,7 +23,8 @@ export default class Profissional extends React.Component<MyProps, MyState> {
 
     this.state = {
        jobs: [],
-       filter: 'Aberto'
+       filter: 'Aberto',
+       user: firebase.auth().currentUser
     };
 
   };
@@ -60,8 +61,9 @@ export default class Profissional extends React.Component<MyProps, MyState> {
         <Header back={true} label="Solicitar Profissional" navigation={this.props.navigation}/>
         <Text style={styles.legend}>Filtrar</Text>
         <View style={styles.filters}>
-          <Button style={this.state.filter == 'Aberto' ? styles.filterButtonSelected : styles.filterButton} label="Abertos" onPress={this.filterReload.bind(this, 'Aberto')}/>
-          <Button style={this.state.filter == 'Em Andamento' ? styles.filterButtonSelected : styles.filterButton} label="Em Andamento" onPress={this.filterReload.bind(this, 'Em Andamento')}/>
+            <Button style={this.state.filter == 'Aberto' ? styles.filterButtonSelected : styles.filterButton} textStyle={styles.filterButtonFontStyle} label="Aberto" onPress={this.filterReload.bind(this, 'Aberto')}/>
+            <Button style={this.state.filter == 'Em Andamento' ? styles.filterButtonSelected : styles.filterButton} textStyle={styles.filterButtonFontStyle} label="Em Andamento" onPress={this.filterReload.bind(this, 'Em Andamento')}/>
+            <Button style={this.state.filter == 'Finalizado' ? styles.filterButtonSelected : styles.filterButton} textStyle={styles.filterButtonFontStyle} label="Finalizado" onPress={this.filterReload.bind(this, 'Finalizado')}/>
         </View>
         <Text style={styles.legend}>Minhas solicitações</Text>
         <FlatList 
@@ -114,6 +116,7 @@ export default class Profissional extends React.Component<MyProps, MyState> {
           title={arr.item.profession} 
           description={arr.item.description}
           value={arr.item.value || undefined}
+          uid={this.state.user?.uid}
         />
 
       </TouchableWithoutFeedback>
@@ -140,7 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 5,
     marginRight: 5,
-    borderRadius: 20
+    borderRadius: 20,
   },
   filterButtonSelected:{
     flex: 1,
@@ -148,6 +151,12 @@ const styles = StyleSheet.create({
     marginRight: 5,
     borderRadius: 20,
     backgroundColor: Colors.yellow
+  },
+  filterButtonFontStyle: {
+    textAlign: "center",
+    fontWeight: "normal",
+    letterSpacing: 0.5,
+    fontSize: 16
   },
   btnContainer: {
     backgroundColor: Colors.lightGray,

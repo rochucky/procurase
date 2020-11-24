@@ -6,7 +6,8 @@ import { Text } from 'react-native-paper';
 type MyProps = {
   label: string,
   onPress: Function,
-  style?: any
+  style?: any,
+  textStyle?: any
 
 };
 type MyState = {};
@@ -22,8 +23,8 @@ export default class Button extends React.Component<MyProps, MyState> {
   render() {
     return (
       <View style={[styles.container, this.props.style]}>
-        <TouchableOpacity onPress={() => {this.props.onPress()}}>
-          <Text style={styles.innerText}>{this.props.label}</Text>
+        <TouchableOpacity style={{width: '100%'}} onPress={() => {this.props.onPress()}}>
+          <Text style={[styles.innerText, this.props.textStyle]}>{this.props.label}</Text>
         </TouchableOpacity>
       </View>
     )
