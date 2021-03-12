@@ -102,7 +102,7 @@ export default class FazerProposta extends React.Component<MyProps, MyState> {
               <TextInput
                 label="Detalhes"
                 mode="outlined"
-                placeholder="Detalhe o porquê você quer essa vaga essa vaga e suas qualificações"
+                placeholder="Detalhe o porquê você quer essa vaga e suas qualificações"
                 value={this.state.description}
                 onChangeText={(text) => {this.setState({description: text})}}
                 multiline={true}

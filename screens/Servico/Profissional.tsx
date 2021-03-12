@@ -53,6 +53,22 @@ export default class Profissional extends React.Component<MyProps, MyState> {
     })
   }
 
+  filterReload = (status: string) => {
+    this.setState({filter: status, loading: true}, () => {
+      var user = firebase.auth().currentUser;
+      var that = this;
+      firebase.firestore().collection('jobs').where('owner','==', user?.uid).where('status', '==', this.state.filter).orderBy('date','desc').get()
+      .then(function(querySnapshot) {
+        var items: any = [];
+        querySnapshot.forEach(function(doc) {
+          // doc.data() is never undefined for query doc snapshots
+          console.log(doc.id, " => ", doc.data());
+          items.push({id: doc.id ,...doc.data()});
+        });
+        that.setState({jobs: items, loading: false});
+      })
+    })
+  }
   
 
   render() {
@@ -88,22 +104,6 @@ export default class Profissional extends React.Component<MyProps, MyState> {
     )
     
   };
-  filterReload = (status: string) => {
-    this.setState({filter: status, loading: true}, () => {
-      var user = firebase.auth().currentUser;
-      var that = this;
-      firebase.firestore().collection('jobs').where('owner','==', user?.uid).where('status', '==', this.state.filter).orderBy('date','desc').get()
-      .then(function(querySnapshot) {
-        var items: any = [];
-        querySnapshot.forEach(function(doc) {
-          // doc.data() is never undefined for query doc snapshots
-          console.log(doc.id, " => ", doc.data());
-          items.push({id: doc.id ,...doc.data()});
-        });
-        that.setState({jobs: items, loading: false});
-      })
-    })
-  }
 
   renderItem = (arr: any) => {
     return(

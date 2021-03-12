@@ -24,7 +24,8 @@ export default class Trabalho extends React.Component<MyProps, MyState> {
     super(props)
 
     this.state = {
-       jobs: []
+       jobs: [],
+       filter: 'Aberto'
     };
 
     this.user = firebase.auth().currentUser;
@@ -43,7 +44,14 @@ export default class Trabalho extends React.Component<MyProps, MyState> {
     this.setState({loading: true});
     var user = firebase.auth().currentUser;
     var that = this;
-    firebase.firestore().collection('jobs').where('status','==', 'Aberto').orderBy('date','desc').get()
+    var jobs = firebase.firestore().collection('jobs')
+    if(this.state.filter == 'Em Andamento'){
+      jobs.where('acceptedOffer.offerUser','==', user?.uid).where('status', '==', this.state.filter).orderBy('date','desc');
+    }
+    else if (this.state.filter == 'Aberto'){
+      jobs.where('status', '==', this.state.filter).orderBy('date','desc');
+    }
+    jobs.get()
     .then( function(querySnapshot) {
       var items: any = [];
       querySnapshot.forEach(function(doc) {
@@ -65,10 +73,44 @@ export default class Trabalho extends React.Component<MyProps, MyState> {
     })
   }
 
+  filterReload = (status: string) => {
+    console.log('Teste');
+    this.setState({filter: status, loading: true}, () => {
+      var user = firebase.auth().currentUser;
+      var that = this;
+      var jobs = firebase.firestore().collection('jobs')
+      if(this.state.filter == 'Em Andamento'){
+        jobs.where('acceptedOffer.offerUser','==', user?.uid).where('status', '==', this.state.filter).orderBy('date','desc');
+      }
+      else if (this.state.filter == 'Aberto'){
+        jobs.where('status', '==', this.state.filter).orderBy('date','desc');
+      }
+      jobs.get()
+      .then(function(querySnapshot) {
+        var items: any = [];
+        querySnapshot.forEach(function(doc) {
+          // doc.data() is never undefined for query doc snapshots
+          if (doc.data().status == 'Aberto' && doc.data().owner == user?.uid){
+            return;
+          }
+          console.log(doc.id, " => ", doc.data());
+          items.push({id: doc.id ,...doc.data()});
+        });
+        that.setState({jobs: items, loading: false});
+      })
+    })
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <Header back={true} label="Trabalhos" navigation={this.props.navigation}/>
+        <Text style={styles.legend}>Filtrar</Text>
+        <View style={styles.filters}>
+            <Button style={this.state.filter == 'Aberto' ? styles.filterButtonSelected : styles.filterButton} textStyle={styles.filterButtonFontStyle} label="Aberto" onPress={this.filterReload.bind(this, 'Aberto')}/>
+            <Button style={this.state.filter == 'Em Andamento' ? styles.filterButtonSelected : styles.filterButton} textStyle={styles.filterButtonFontStyle} label="Em Andamento" onPress={this.filterReload.bind(this, 'Em Andamento')}/>
+            <Button style={this.state.filter == 'Finalizado' ? styles.filterButtonSelected : styles.filterButton} textStyle={styles.filterButtonFontStyle} label="Finalizado" onPress={this.filterReload.bind(this, 'Finalizado')}/>
+        </View>
         <Text style={styles.legend}>Trabalhos Diponíveis</Text>
         <FlatList 
           showsVerticalScrollIndicator={false}
@@ -78,7 +120,7 @@ export default class Trabalho extends React.Component<MyProps, MyState> {
           refreshControl={
             <RefreshControl 
               refreshing={this.state.loading}
-              onRefresh={this.handleRefresh.bind(this)}
+              onRefresh={this.handleRefresh.bind(this, this.state.filte)}
             />
           }
         />
@@ -89,14 +131,14 @@ export default class Trabalho extends React.Component<MyProps, MyState> {
 
   renderItem = (arr: any) => {
     if(arr.item.owner != this.user?.uid){
-      
+        console.log(arr.item);
           return(
             <TouchableWithoutFeedback onPress={() => {this.props.navigation.navigate('DetalhesSolicitacao', {id: arr.item.id})}}>
               <Card 
                 key={arr.item.id}
                 navigation={this.props.navigation} 
                 item={arr.item}
-                thumb={arr.item.images[0]} 
+                thumb={arr.item.image ? arr.item.image[0] : undefined}
                 title={arr.item.profession} 
                 description={arr.item.description}
                 value={arr.item.value || undefined}
@@ -125,6 +167,30 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingTop: 50,
     height: '100%'
+  },
+  filters: {
+    flex: 0,
+    flexDirection: "row",
+    marginTop: 10
+  },
+  filterButton:{
+    flex: 1,
+    marginLeft: 5,
+    marginRight: 5,
+    borderRadius: 20,
+  },
+  filterButtonSelected:{
+    flex: 1,
+    marginLeft: 5,
+    marginRight: 5,
+    borderRadius: 20,
+    backgroundColor: Colors.yellow
+  },
+  filterButtonFontStyle: {
+    textAlign: "center",
+    fontWeight: "normal",
+    letterSpacing: 0.5,
+    fontSize: 16
   },
   btnContainer: {
     backgroundColor: Colors.lightGray,
