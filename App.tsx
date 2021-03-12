@@ -7,13 +7,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as firebase from 'firebase';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCexIdHYZJtx-yEcmuUTjCANQFNixUfd94",
-  authDomain: "bicos-6a1f2.firebaseapp.com",
-  databaseURL: "https://bicos-6a1f2.firebaseio.com",
-  projectId: "bicos-6a1f2",
-  storageBucket: "gs://bicos-6a1f2.appspot.com",
-  messagingSenderId: "355946700353",
-  appId: "1:355946700353:web:d9c15b38e81f433f4d70c0"
+  apiKey: "AIzaSyDiT8YtegjnnksnNLhMIOPATE2A9r2EOaA",
+  databaseURL: "https://procurase-bc443.firebaseio.com",
+  authDomain: "procurase-bc443.firebaseapp.com",
+  projectId: "procurase-bc443",
+  storageBucket: "procurase-bc443.appspot.com",
+  messagingSenderId: "34580308812",
+  appId: "1:34580308812:web:c3f32d6733edea727225e9",
+  measurementId: "G-7G14DVM0DV"
 };
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
